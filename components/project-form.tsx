@@ -139,7 +139,7 @@ export default function ProjectForm() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Thank you!</h2>
             <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
               Thank you for sending us this important information about{" "}
-              <span className="font-semibold text-pink-600 bg-pink-50 px-3 py-1 rounded-lg">
+              <span className="font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-lg">
                 {formState.projectCode}
               </span>
               !
@@ -147,14 +147,14 @@ export default function ProjectForm() {
 
             <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 mb-8 border border-pink-200">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Apple className="w-6 h-6 text-pink-600" />
+                <Apple className="w-6 h-6 text-red-600" />
                 <span className="text-lg font-semibold text-gray-900">Special Gift</span>
-                <Sparkles className="w-6 h-6 text-rose-600" />
+                <Sparkles className="w-6 h-6 text-red-600" />
               </div>
               <p className="text-gray-700 mb-4">As a thank you, enjoy 3 months of Apple Music on us!</p>
               <a
                 href="https://www.apple.com/apple-music/"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:from-pink-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full font-semibold hover:from-pink-600 hover:to-rose-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -166,7 +166,7 @@ export default function ProjectForm() {
 
             <Button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-black hover:from-pink-600 hover:to-rose-700 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
             >
               Submit Another Project
             </Button>
@@ -350,7 +350,7 @@ export default function ProjectForm() {
             <div className="pt-6">
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-black hover:from-black-600 hover:to-black-700 text-white h-12 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isPending}
               >
                 {isPending ? (

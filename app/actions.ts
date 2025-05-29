@@ -2,19 +2,18 @@
 
 import { z } from "zod"
 
-// Define the schema for form validation
-const ProjectSchema = z.object({
-  projectCode: z
-    .string()
-    .regex(/^[A-Z]{3}-[0-9]{3}$/, "Project code must be 3 uppercase letters, a hyphen, and 3 numbers (e.g., ABC-123)")
-    .min(1, "Project code is required"),
-  description: z.string().min(1, "Project description is required"),
-  productLine: z.string().min(1, "Product line is required"),
-  wantsNotifications: z.string(),
-  notificationType: z.array(z.string()).optional(),
+// Define the form data schema
+const projectSchema = z.object({
+  projectCode: z.string().regex(/^[A-Z]{3}-[0-9]{3}$/, {
+    message: "Project code must be 3 uppercase letters, a hyphen, and 3 numbers (e.g., ABC-123)"
+  }),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  productLine: z.enum(["iPhone", "iPad", "Mac", "Vision Pro", "Other"]),
+  wantsNotifications: z.enum(["yes", "no"]),
+  notificationType: z.array(z.enum(["all", "daily", "weekly"])).optional()
 })
 
-type FormState = {
+export type FormState = {
   success: boolean
   errors?: {
     projectCode?: string
@@ -24,66 +23,53 @@ type FormState = {
   projectCode?: string
 }
 
-export async function saveProjectData(prevState: FormState, formData: FormData) {
-  // Extract form data
-  const rawFormData = {
-    projectCode: formData.get("projectCode"),
-    description: formData.get("description"),
-    productLine: formData.get("productLine"),
-    wantsNotifications: formData.get("wantsNotifications") || "no",
-    notificationType: formData.getAll("notificationType"),
-  }
-
-  // Validate form data
-  const validatedFields = ProjectSchema.safeParse(rawFormData)
-
-  // If validation fails, return errors
-  if (!validatedFields.success) {
-    const errors = validatedFields.error.flatten().fieldErrors
-    return {
-      success: false,
-      errors: {
-        projectCode: errors.projectCode?.[0],
-        description: errors.description?.[0],
-        productLine: errors.productLine?.[0],
-      },
-    }
-  }
-
-  // Get the validated data
-  const data = validatedFields.data
-
+export async function saveProjectData(prevState: FormState, formData: FormData): Promise<FormState> {
   try {
-    // In a real application, you would save this data to a database
-    // For example, using Prisma:
-    // await prisma.project.create({
-    //   data: {
-    //     projectCode: data.projectCode,
-    //     description: data.description,
-    //     productLine: data.productLine,
-    //     wantsNotifications: data.wantsNotifications === 'yes',
-    //     notificationTypes: data.notificationType,
-    //   },
-    // })
+    // Parse and validate the form data
+    const rawData = {
+      projectCode: formData.get('projectCode'),
+      description: formData.get('description'),
+      productLine: formData.get('productLine'),
+      wantsNotifications: formData.get('wantsNotifications'),
+      notificationType: formData.getAll('notificationType')
+    }
 
-    // For demonstration, we'll just log the data
-    console.log("Saving project data:", data)
+    const validatedData = projectSchema.parse(rawData)
 
-    // Simulate a database operation delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Call the NestJS API
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedData),
+    })
 
-    // Return success state with the project code for the thank you message
+    if (!response.ok) {
+      throw new Error('Failed to save project data')
+    }
+
     return {
       success: true,
-      projectCode: data.projectCode,
+      projectCode: validatedData.projectCode
     }
   } catch (error) {
-    console.error("Error saving project data:", error)
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        errors: {
+          projectCode: error.errors.find(e => e.path[0] === 'projectCode')?.message,
+          description: error.errors.find(e => e.path[0] === 'description')?.message,
+          productLine: error.errors.find(e => e.path[0] === 'productLine')?.message,
+        }
+      }
+    }
+
     return {
       success: false,
       errors: {
-        projectCode: "Failed to save project data. Please try again.",
-      },
+        projectCode: 'An unexpected error occurred'
+      }
     }
   }
 }
